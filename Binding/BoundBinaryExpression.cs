@@ -3,6 +3,9 @@
 namespace Jvav.Binding
 {
     public sealed class BoundUnaryOperator
+    {
+
+    }
     public sealed class BoundBinaryExpression : BoundExpression
     {
         public BoundBinaryExpression(BoundExpression left, BoundBinaryExpressionKind operatorKind, BoundExpression right)
