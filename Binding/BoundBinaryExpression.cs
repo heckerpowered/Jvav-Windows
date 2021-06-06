@@ -2,16 +2,12 @@
 
 namespace Jvav.Binding
 {
-    public sealed class BoundUnaryOperator
-    {
-
-    }
     public sealed class BoundBinaryExpression : BoundExpression
     {
-        public BoundBinaryExpression(BoundExpression left, BoundBinaryExpressionKind operatorKind, BoundExpression right)
+        public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator op, BoundExpression right)
         {
             Left = left;
-            OperatorKind = operatorKind;
+            Op = op;
             Right = right;
         }
 
@@ -19,7 +15,7 @@ namespace Jvav.Binding
         public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
 
         public BoundExpression Left { get; }
-        public BoundBinaryExpressionKind OperatorKind { get; }
+        public BoundBinaryOperator Op { get; }
         public BoundExpression Right { get; }
     }
 }

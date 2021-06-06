@@ -1,6 +1,6 @@
 ﻿namespace Jvav.Binding
 {
-    public enum BoundBinaryExpressionKind
+    public enum BoundBinaryOperatorKind
     {
         Addition,
         Subtraction,
