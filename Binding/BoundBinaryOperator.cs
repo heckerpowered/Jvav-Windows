@@ -9,6 +9,7 @@ namespace Jvav.Binding
         private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type type)
             : this(syntaxKind, kind, type, type, type)
         {
+
         }
         private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type leftType, Type rightType, Type resultType)
         {
