@@ -10,7 +10,7 @@ namespace Jvav.Binding
             Operand = operand;
         }
 
-        public override Type Type => Operand.Type;
+        public override Type Type => Op.ResultType;
         public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
         public BoundUnaryOperator Op { get; }
         public BoundExpression Operand { get; }

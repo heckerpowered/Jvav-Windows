@@ -1,8 +1,7 @@
 ﻿using Jvav.Binding;
 using Jvav.Syntax;
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,8 +47,15 @@ namespace Jvav.Syntax
                     BoundBinaryOperatorKind.Division => (int)left / (int)right,
                     BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
                     BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
+                    BoundBinaryOperatorKind.Equals => Equals(left,right),
+                    BoundBinaryOperatorKind.NotEquals => Equals(left,right),
                     _ => throw new Exception($"Unexpected binary operator '{b.Op}'")
                 };
+            }
+
+            if(node is BoundParenthesizedExpression p)
+            {
+                return EvaluateExpression(p.Expression);
             }
 
             throw new Exception($"Unexpected node '{node.Kind}'");

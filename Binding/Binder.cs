@@ -1,4 +1,5 @@
 ﻿using Jvav.Syntax;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace Jvav.Binding
 {
     public sealed class Binder
     {
-        private readonly List<string> _diagnostic = new();
-        public IEnumerable<string> Diagnostic => _diagnostic;
+        private readonly DiagnosticBag _diagnostic = new();
+        public DiagnosticBag Diagnostic => _diagnostic;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -19,19 +20,26 @@ namespace Jvav.Binding
                 SyntaxKind.LiteralExpression => BindLiteralExpression((LiteralExpressionSyntax)syntax),
                 SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax)syntax),
                 SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax)syntax),
+                SyntaxKind.ParenthesizedExpression => BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax),
                 _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
             };
+        }
+
+        private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
+        {
+            var expression = BindExpression(syntax.Expression);
+            return new BoundParenthesizedExpression(expression);
         }
 
         private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)
         {
             var boundLeft = BindExpression(syntax.Left);
             var boundRight = BindExpression(syntax.Right);
-            var boundOperator = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind,boundLeft.Type,boundRight.Type);
+            var boundOperator = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
 
             if (boundOperator == null)
             {
-                _diagnostic.Add($"Binary operator '{syntax.OperatorToken.Text}' is not defined for types '{boundLeft.Type}' and '{boundLeft.Type}'.");
+                _diagnostic.ReportUndefinedBinaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text, boundLeft.Type, boundRight.Type); ;
                 return boundLeft;
             }
 
@@ -43,16 +51,16 @@ namespace Jvav.Binding
             var boundOperand = BindExpression(syntax.Operand);
             var boundOperator = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.Type);
 
-            if(boundOperator == null)
+            if (boundOperator == null)
             {
-                _diagnostic.Add($"Unary operator '{syntax.OperatorToken.Text}' is not defined for type '{boundOperand.Type}'.");
+                _diagnostic.ReportUndefinedUnaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text, boundOperand.Type);
                 return boundOperand;
             }
 
             return new BoundUnaryExpression(boundOperator, boundOperand);
         }
 
-        private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
+        private static BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
             var value = syntax.Value ?? 0;
             return new BoundLiteralExpression(value);

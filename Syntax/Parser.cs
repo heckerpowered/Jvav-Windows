@@ -10,7 +10,7 @@ namespace Jvav.Syntax
     {
         private readonly SyntaxToken[] _tokens;
         private int _position;
-        private readonly List<string> _diagnostics = new();
+        private readonly DiagnosticBag _diagnostics = new();
         public Parser(string text)
         {
             List<SyntaxToken> tokens = new();
@@ -50,7 +50,8 @@ namespace Jvav.Syntax
         {
             if (Current.Kind == kind)
                 return NextToken();
-            _diagnostics.Add(Diagnostic.UnexpectToken(Current.Kind, kind));
+
+            _diagnostics.ReportUnexpectedToken(Current.Span,Current.Kind,kind);
             return new SyntaxToken(kind, Current.Position, null, null);
         }
         public SyntaxTree Parse()

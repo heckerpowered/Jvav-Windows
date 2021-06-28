@@ -10,12 +10,12 @@ namespace Jvav.Syntax
     {
         private readonly string _text;
         private int _position;
-        private readonly List<string> _diagnostics = new();
+        private readonly DiagnosticBag _diagnostics = new();
         public Lexer(string text)
         {
             _text = text;
         }
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticBag Diagnostics => _diagnostics;
         private char Current => Peek(0);
         private char Lookahead => Peek(1);
         private char Peek(int offset)
@@ -38,21 +38,21 @@ namespace Jvav.Syntax
                 return new SyntaxToken(SyntaxKind.EndToken, _position, "\0", null);
             }
 
+            int start = _position;
+
             if (char.IsDigit(Current))
             {
-                int start = _position;
                 while (char.IsDigit(Current))
                     Next();
                 int length = _position - start;
                 var text = _text.Substring(start, length);
                 if (!int.TryParse(text, out int value))
-                    _diagnostics.Add(Diagnostic.InvalidIntegralConstant(text));
+                    _diagnostics.ReportInvalidNumber(new(start,length),_text,typeof(int));
                 return new SyntaxToken(SyntaxKind.LiteralToken, start, text, value);
             }
 
             if (char.IsWhiteSpace(Current))
             {
-                int start = _position;
                 while (char.IsWhiteSpace(Current))
                     Next();
                 int length = _position - start;
@@ -62,7 +62,6 @@ namespace Jvav.Syntax
 
             if (char.IsLetter(Current))
             {
-                int start = _position;
                 while (char.IsLetter(Current))
                     Next();
                 int length = _position - start;
@@ -87,22 +86,39 @@ namespace Jvav.Syntax
                     return new SyntaxToken(SyntaxKind.CloseParenthesisToken, Next(), ")", null);
                 case '&':
                     if (Lookahead == '&')
-                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, _position += 2, "&&", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, start, "&&", null);
+                    }
                     break;
                 case '|':
                     if (Lookahead == '|')
-                        return new SyntaxToken(SyntaxKind.PipePipeToken, _position += 2, "||", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "||", null);
+                    }
                     break;
                 case '=':
                     if (Lookahead == '=')
-                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, _position += 2, "==", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, start, "==", null);
+                    }
                     break;
                 case '!':
                     if (Lookahead == '=')
-                        return new SyntaxToken(SyntaxKind.BangEqualsToken, _position += 2, "!=", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxKind.BangEqualsToken, start, "!=", null);
+                    }
                     else
-                        return new SyntaxToken(SyntaxKind.BangToken, Next(), "!", null);
+                    {
+                        _position += 1;
+                        return new SyntaxToken(SyntaxKind.BangToken, start, "!", null);
+                    }
             };
+
+            _diagnostics.ReportBadCharacter(_position, Current);
             return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
         }
     }
