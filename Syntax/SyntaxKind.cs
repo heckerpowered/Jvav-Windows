@@ -15,6 +15,11 @@ namespace Jvav.Syntax
         BadToken,
         EndToken,
         IdentifierToken,
+        BangToken,
+        AmpersandAmpersandToken,
+        PipePipeToken,
+        EqualsEqualsToken,
+        BangEqualsToken,
 
         //Expressions
         BinaryExpression,
@@ -24,9 +29,6 @@ namespace Jvav.Syntax
 
         //Keywords
         TrueKeyword,
-        FalseKeyword,
-        BangToken,
-        AmpersandAmpersandToken,
-        PipePipeToken,
+        FalseKeyword
     }
 }
