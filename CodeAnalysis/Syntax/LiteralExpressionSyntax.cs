@@ -18,10 +18,5 @@ namespace Jvav.CodeAnalysis.Syntax
         public object Value { get; }
 
         public override SyntaxKind Kind => SyntaxKind.LiteralExpression;
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return LiteralToken;
-        }
     }
 }

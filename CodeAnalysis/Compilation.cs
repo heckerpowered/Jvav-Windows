@@ -3,6 +3,7 @@ using Jvav.CodeAnalysis.Syntax;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Jvav.CodeAnalysis
@@ -20,7 +21,7 @@ namespace Jvav.CodeAnalysis
             var binder = new Binder(variables);
             var boundExpression = binder.BindExpression(Syntax.Root);
 
-            var diagnostics = Syntax.Diagnostics.Concat(binder.Diagnostic).ToArray();
+            var diagnostics = Syntax.Diagnostics.Concat(binder.Diagnostic).ToImmutableArray();
             if (diagnostics.Any())
             {
                 return new EvaluationResult(diagnostics, null);
@@ -28,7 +29,7 @@ namespace Jvav.CodeAnalysis
 
             var evaluator = new Evaluator(boundExpression, variables);
             var value = evaluator.Evaluate();
-            return new EvaluationResult(Array.Empty<Diagnostic>(), value);
+            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
         }
     }
 }

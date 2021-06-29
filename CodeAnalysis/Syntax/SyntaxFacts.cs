@@ -28,5 +28,27 @@ namespace Jvav.CodeAnalysis.Syntax
                 _ => SyntaxKind.IdentifierToken,
             };
         }
+
+        public static string GetText(SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.PlusToken => "+",
+                SyntaxKind.MinusToken => "-",
+                SyntaxKind.MultiplicationToken => "*",
+                SyntaxKind.SlashToken => "/",
+                SyntaxKind.BangToken => "!",
+                SyntaxKind.EqualsToken => "=",
+                SyntaxKind.AmpersandAmpersandToken => "&&",
+                SyntaxKind.PipePipeToken => "||",
+                SyntaxKind.EqualsEqualsToken => "==",
+                SyntaxKind.BangEqualsToken => "!=",
+                SyntaxKind.OpenParenthesisToken => "(",
+                SyntaxKind.CloseParenthesisToken => ")",
+                SyntaxKind.FalseKeyword => "false",
+                SyntaxKind.TrueKeyword => "true",
+                _ => null
+            };
+        }
     }
 }

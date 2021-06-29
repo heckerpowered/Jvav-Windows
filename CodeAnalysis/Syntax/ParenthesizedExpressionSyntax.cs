@@ -15,12 +15,5 @@ namespace Jvav.CodeAnalysis.Syntax
         public SyntaxToken CloseParenthsisToken { get; }
 
         public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return OpenParenthsisToken;
-            yield return Expression;
-            yield return CloseParenthsisToken;
-        }
     }
 }

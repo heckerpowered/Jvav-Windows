@@ -19,18 +19,19 @@
         PipePipeToken,
         EqualsEqualsToken,
         BangEqualsToken,
+        EqualsToken,
 
         //Expressions
         BinaryExpression,
         ParenthesizedExpression,
         UnaryExpression,
         LiteralExpression,
+        NameExpression,
+        AssignmentExpression,
 
         //Keywords
         TrueKeyword,
         FalseKeyword,
-        NameExpression,
-        AssignmentExpression,
-        EqualsToken
+        
     }
 }

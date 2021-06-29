@@ -11,8 +11,13 @@ namespace Jvav.CodeAnalysis.Syntax
     public class Lexer
     {
         private readonly string _text;
-        private int _position;
         private readonly DiagnosticBag _diagnostics = new();
+
+        private int _position;
+
+        private int _start;
+        private SyntaxKind _kind;
+        private object _value;
         public Lexer(string text)
         {
             _text = text;
@@ -35,97 +40,144 @@ namespace Jvav.CodeAnalysis.Syntax
         }
         public SyntaxToken Lex()
         {
-            if (_position >= _text.Length)
-            {
-                return new SyntaxToken(SyntaxKind.EndToken, _position, "\0", null);
-            }
-
-            int start = _position;
-
-            if (char.IsDigit(Current))
-            {
-                while (char.IsDigit(Current))
-                    Next();
-                int length = _position - start;
-                var text = _text.Substring(start, length);
-                if (!int.TryParse(text, out int value))
-                    _diagnostics.ReportInvalidNumber(new(start, length), _text, typeof(int));
-                return new SyntaxToken(SyntaxKind.LiteralToken, start, text, value);
-            }
-
-            if (char.IsWhiteSpace(Current))
-            {
-                while (char.IsWhiteSpace(Current))
-                    Next();
-                int length = _position - start;
-                var text = _text.Substring(start, length);
-                return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
-            }
-
-            if (char.IsLetter(Current))
-            {
-                while (char.IsLetter(Current))
-                    Next();
-                int length = _position - start;
-                var text = _text.Substring(start, length);
-                var kind = SyntaxFacts.GetKeywordKind(text);
-                return new SyntaxToken(kind, start, text, null);
-            }
+            _start = _position;
+            _kind = SyntaxKind.BadToken;
+            _value = null;
 
             switch (Current)
             {
+                case '\0':
+                    _kind = SyntaxKind.EndToken;
+                    break;
                 case '+':
-                    return new SyntaxToken(SyntaxKind.PlusToken, Next(), "+", null);
+                    _kind = SyntaxKind.PlusToken;
+                    _position++;
+                    break;
                 case '-':
-                    return new SyntaxToken(SyntaxKind.MinusToken, Next(), "-", null);
+                    _kind = SyntaxKind.MinusToken;
+                    _position++;
+                    break;
                 case '*':
-                    return new SyntaxToken(SyntaxKind.MultiplicationToken, Next(), "*", null);
+                    _kind = SyntaxKind.MultiplicationToken;
+                    _position++;
+                    break;
                 case '/':
-                    return new SyntaxToken(SyntaxKind.SlashToken, Next(), "/", null);
+                    _kind = SyntaxKind.SlashToken;
+                    _position++;
+                    break;
                 case '(':
-                    return new SyntaxToken(SyntaxKind.OpenParenthesisToken, Next(), "(", null);
+                    _kind = SyntaxKind.OpenParenthesisToken;
+                    _position++;
+                    break;
                 case ')':
-                    return new SyntaxToken(SyntaxKind.CloseParenthesisToken, Next(), ")", null);
+                    _kind = SyntaxKind.CloseParenthesisToken;
+                    _position++;
+                    break;
                 case '&':
                     if (Lookahead == '&')
                     {
+                        _kind = SyntaxKind.AmpersandAmpersandToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, start, "&&", null);
+                        break;
                     }
                     break;
                 case '|':
                     if (Lookahead == '|')
                     {
+                        _kind = SyntaxKind.PipePipeToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "||", null);
+                        break;
                     }
                     break;
                 case '=':
-                    if (Lookahead == '=')
+                    _position++;
+                    if (Current == '=')
                     {
-                        _position += 2;
-                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, start, "==", null);
+                        _kind = SyntaxKind.EqualsEqualsToken;
                     }
                     else
                     {
-                        _position += 1;
-                        return new SyntaxToken(SyntaxKind.EqualsToken, start, "=", null);
+                        _position++;
+                        _kind = SyntaxKind.EqualsToken;
                     }
+                    break;
                 case '!':
-                    if (Lookahead == '=')
+                    _position++;
+                    if (Current == '=')
                     {
-                        _position += 2;
-                        return new SyntaxToken(SyntaxKind.BangEqualsToken, start, "!=", null);
+                        _kind = SyntaxKind.BangEqualsToken;
+                        _position++;
                     }
                     else
                     {
-                        _position += 1;
-                        return new SyntaxToken(SyntaxKind.BangToken, start, "!", null);
+                        _kind = SyntaxKind.BangToken;
                     }
-            };
+                    break;
+                case '0' or '1' or '2' or '3' or '4' or '5' or '6' or '7' or '8' or '9':
+                    ReadNumberToken();
+                    break;
+                case ' ' or '\t' or '\n' or '\n':
+                    ReadWhiteSpace();
+                    break;
+                default:
+                    if (char.IsDigit(Current))
+                    {
+                        ReadNumberToken();
+                    }
+                    else if (char.IsWhiteSpace(Current))
+                    {
+                        ReadWhiteSpace();
+                    }
+                    else if (char.IsLetter(Current))
+                    {
+                        ReadIdentifierOrKeywork();
+                    }
+                    else
+                    {
+                        _diagnostics.ReportBadCharacter(_position, Current);
+                        _position++;
+                    }
+                    break;
+            }
 
-            _diagnostics.ReportBadCharacter(_position, Current);
-            return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
+            var length = _position - _start + 1;
+            var text = SyntaxFacts.GetText(_kind);
+            if (text == null)
+                text = _text.Substring(_start, length);
+
+            return new(_kind, _start, text, _value);
+        }
+
+        private void ReadIdentifierOrKeywork()
+        {
+            while (char.IsLetter(Current))
+                Next();
+
+            int length = _position - _start;
+            var text = _text.Substring(_start, length);
+            _kind = SyntaxFacts.GetKeywordKind(text);
+        }
+
+        private void ReadWhiteSpace()
+        {
+            while (char.IsWhiteSpace(Current))
+                Next();
+
+            _kind = SyntaxKind.WhitespaceToken;
+        }
+
+        private void ReadNumberToken()
+        {
+            while (char.IsDigit(Current))
+                Next();
+
+            int length = _position - _start;
+            var text = _text.Substring(_start, length);
+            if (!int.TryParse(text, out var value))
+                _diagnostics.ReportInvalidNumber(new(_start, length), _text, typeof(int));
+
+            _value = value;
+            _kind = SyntaxKind.LiteralToken;
         }
     }
 }

@@ -16,12 +16,5 @@ namespace Jvav.CodeAnalysis.Syntax
         public ExpressionSyntax Expression { get; }
 
         public override SyntaxKind Kind => SyntaxKind.AssignmentExpression;
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return IdentifierToken;
-            yield return EqualsToken;
-            yield return Expression;
-        }
     }
 }
