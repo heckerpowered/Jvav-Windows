@@ -1,8 +1,9 @@
-﻿using Jvav.Syntax;
+﻿using Jvav.CodeAnalysis.Syntax;
+
 using System;
 using System.Linq;
 
-namespace Jvav.Binding
+namespace Jvav.CodeAnalysis.Binding
 {
     public sealed class BoundBinaryOperator
     {
@@ -11,7 +12,7 @@ namespace Jvav.Binding
         {
 
         }
-        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type operandType,Type resultType)
+        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type operandType, Type resultType)
             : this(syntaxKind, kind, operandType, operandType, resultType)
         {
 

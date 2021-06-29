@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jvav.Syntax
+using Jvav.CodeAnalysis;
+
+namespace Jvav.CodeAnalysis.Syntax
 {
     public class Lexer
     {
@@ -47,7 +49,7 @@ namespace Jvav.Syntax
                 int length = _position - start;
                 var text = _text.Substring(start, length);
                 if (!int.TryParse(text, out int value))
-                    _diagnostics.ReportInvalidNumber(new(start,length),_text,typeof(int));
+                    _diagnostics.ReportInvalidNumber(new(start, length), _text, typeof(int));
                 return new SyntaxToken(SyntaxKind.LiteralToken, start, text, value);
             }
 

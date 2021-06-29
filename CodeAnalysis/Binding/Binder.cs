@@ -1,4 +1,4 @@
-﻿using Jvav.Syntax;
+﻿using Jvav.CodeAnalysis.Syntax;
 
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jvav.Binding
+namespace Jvav.CodeAnalysis.Binding
 {
     public sealed class Binder
     {

@@ -1,4 +1,4 @@
-﻿namespace Jvav.Binding
+﻿namespace Jvav.CodeAnalysis.Binding
 {
     public abstract class BoundNode
     {

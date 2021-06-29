@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Jvav.Binding
+namespace Jvav.CodeAnalysis.Binding
 {
     internal class BoundParenthesizedExpression : BoundExpression
     {
         public BoundParenthesizedExpression(BoundExpression expression)
         {
             Expression = expression;
-}
+        }
 
         public override Type Type => Expression.Type;
 

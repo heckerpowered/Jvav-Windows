@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jvav.Binding
+namespace Jvav.CodeAnalysis.Binding
 {
     public sealed class BoundLiteralExpression : BoundExpression
     {

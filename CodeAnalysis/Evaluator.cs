@@ -1,11 +1,10 @@
-﻿using Jvav.Binding;
-using Jvav.Syntax;
+﻿using Jvav.CodeAnalysis.Binding;
 
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jvav.Syntax
+namespace Jvav.CodeAnalysis
 {
     public class Evaluator
     {
@@ -23,7 +22,7 @@ namespace Jvav.Syntax
             if (node is BoundLiteralExpression n)
                 return n.Value;
 
-            if(node is BoundUnaryExpression u)
+            if (node is BoundUnaryExpression u)
             {
                 var operand = EvaluateExpression(u.Operand);
                 return u.Op.Kind switch
@@ -35,7 +34,7 @@ namespace Jvav.Syntax
                 };
             }
 
-            if(node is BoundBinaryExpression b)
+            if (node is BoundBinaryExpression b)
             {
                 var left = EvaluateExpression(b.Left);
                 var right = EvaluateExpression(b.Right);
@@ -47,13 +46,13 @@ namespace Jvav.Syntax
                     BoundBinaryOperatorKind.Division => (int)left / (int)right,
                     BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
                     BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
-                    BoundBinaryOperatorKind.Equals => Equals(left,right),
-                    BoundBinaryOperatorKind.NotEquals => Equals(left,right),
+                    BoundBinaryOperatorKind.Equals => Equals(left, right),
+                    BoundBinaryOperatorKind.NotEquals => Equals(left, right),
                     _ => throw new Exception($"Unexpected binary operator '{b.Op}'")
                 };
             }
 
-            if(node is BoundParenthesizedExpression p)
+            if (node is BoundParenthesizedExpression p)
             {
                 return EvaluateExpression(p.Expression);
             }

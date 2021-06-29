@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Jvav.Syntax
+namespace Jvav.CodeAnalysis.Syntax
 {
     public sealed class LiteralExpressionSyntax : ExpressionSyntax
     {

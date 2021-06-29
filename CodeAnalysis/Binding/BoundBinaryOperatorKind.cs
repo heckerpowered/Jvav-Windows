@@ -1,4 +1,4 @@
-﻿namespace Jvav.Binding
+﻿namespace Jvav.CodeAnalysis.Binding
 {
     public enum BoundBinaryOperatorKind
     {

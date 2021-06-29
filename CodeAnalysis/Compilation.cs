@@ -1,9 +1,10 @@
-﻿using Jvav.Binding;
+﻿using Jvav.CodeAnalysis.Binding;
+using Jvav.CodeAnalysis.Syntax;
 
 using System;
 using System.Linq;
 
-namespace Jvav.Syntax
+namespace Jvav.CodeAnalysis
 {
     public sealed class Compilation
     {

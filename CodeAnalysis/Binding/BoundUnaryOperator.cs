@@ -1,15 +1,16 @@
-﻿using Jvav.Syntax;
+﻿using Jvav.CodeAnalysis.Syntax;
+
 using System;
 using System.Linq;
 
-namespace Jvav.Binding
+namespace Jvav.CodeAnalysis.Binding
 {
     public sealed class BoundUnaryOperator
     {
         private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType)
             : this(syntaxKind, kind, operandType, operandType)
         {
-            
+
         }
         private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType, Type resultType)
         {

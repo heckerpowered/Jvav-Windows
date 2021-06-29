@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jvav.Syntax
+namespace Jvav.CodeAnalysis.Syntax
 {
     public static class SyntaxFacts
     {

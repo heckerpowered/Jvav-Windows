@@ -1,5 +1,4 @@
-﻿
-namespace Jvav.Syntax
+﻿namespace Jvav.CodeAnalysis.Syntax
 {
     public enum SyntaxKind
     {

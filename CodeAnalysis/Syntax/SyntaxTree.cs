@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Jvav.Syntax
+using Jvav.CodeAnalysis;
+
+namespace Jvav.CodeAnalysis.Syntax
 {
     public sealed class SyntaxTree
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Jvav.Syntax
+namespace Jvav.CodeAnalysis
 {
     public sealed class EvaluationResult
     {

@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Jvav.Syntax
+using Jvav.CodeAnalysis.Syntax;
+
+namespace Jvav.CodeAnalysis
 {
     public sealed class Diagnostic
     {
