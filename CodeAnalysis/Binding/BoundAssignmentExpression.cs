@@ -5,12 +5,13 @@ namespace Jvav.CodeAnalysis.Binding
     public sealed class BoundAssignmentExpression : BoundExpression
     {
 
-        public BoundAssignmentExpression(string name, BoundExpression expression)
+        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression expression)
         {
-            Name = name;
+            Variable = variable;
             Expression = expression;
         }
-        public string Name { get; }
+
+        public VariableSymbol Variable { get; }
         public BoundExpression Expression { get; }
         public override Type Type => Expression.Type;
 
