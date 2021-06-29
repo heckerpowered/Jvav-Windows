@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,13 @@ namespace Jvav.CodeAnalysis.Binding
     public sealed class Binder
     {
         private readonly DiagnosticBag _diagnostic = new();
+        private readonly Dictionary<string, object> _variables;
+
+        public Binder(Dictionary<string, object> variables)
+        {
+            _variables = variables;
+        }
+
         public DiagnosticBag Diagnostic => _diagnostic;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
@@ -21,14 +29,38 @@ namespace Jvav.CodeAnalysis.Binding
                 SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax)syntax),
                 SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax)syntax),
                 SyntaxKind.ParenthesizedExpression => BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax),
+                SyntaxKind.NameExpression => BindNameExpression((NameExpressionSyntax)syntax),
+                SyntaxKind.AssignmentExpression => BindAssignmentExpression((AssignmentExpressionSyntax)syntax),
                 _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
             };
         }
 
+        private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var boundExpression = BindExpression(syntax.Expression);
+
+            _variables[name] = default;
+            return new BoundAssignmentExpression(name, boundExpression);
+        }
+
+        private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            if (!_variables.TryGetValue(name, out var value))
+            {
+                _diagnostic.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                return new BoundLiteralExpression(0);
+            }
+
+            var type = value.GetType();
+            return new BoundVariableExpression(name, type);
+        }
+
         private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
         {
-            var expression = BindExpression(syntax.Expression);
-            return new BoundParenthesizedExpression(expression);
+            var boundExpression = BindExpression(syntax.Expression);
+            return new BoundParenthesizedExpression(boundExpression);
         }
 
         private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)

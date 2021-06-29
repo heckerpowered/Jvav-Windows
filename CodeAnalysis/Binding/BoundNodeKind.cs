@@ -3,6 +3,8 @@
     public enum BoundNodeKind
     {
         UnaryExpression,
-        LiteralExpression
+        LiteralExpression,
+        VariableExpression,
+        AssignmentExpression
     }
 }

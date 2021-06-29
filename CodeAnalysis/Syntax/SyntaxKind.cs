@@ -28,6 +28,9 @@
 
         //Keywords
         TrueKeyword,
-        FalseKeyword
+        FalseKeyword,
+        NameExpression,
+        AssignmentExpression,
+        EqualsToken
     }
 }
