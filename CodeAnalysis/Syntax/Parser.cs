@@ -8,7 +8,9 @@ namespace Jvav.CodeAnalysis.Syntax
         private readonly ImmutableArray<SyntaxToken> _tokens;
         private int _position;
         private readonly DiagnosticBag _diagnostics = new();
-        public Parser(string text)
+        private readonly SourceText _text;
+
+        public Parser(SourceText text)
         {
             List<SyntaxToken> tokens = new();
             Lexer lexer = new(text);
@@ -24,6 +26,7 @@ namespace Jvav.CodeAnalysis.Syntax
                 }
             } while (token.Kind != SyntaxKind.EndToken);
 
+            _text = text;
             _tokens = tokens.ToImmutableArray();
             _diagnostics.AddRange(lexer.Diagnostics);
         }
@@ -55,7 +58,7 @@ namespace Jvav.CodeAnalysis.Syntax
         {
             ExpressionSyntax expression = ParseExpression();
             SyntaxToken endToken = MatchToken(SyntaxKind.EndToken);
-            return new SyntaxTree(_diagnostics.ToImmutableArray(), expression, endToken);
+            return new SyntaxTree(_text,_diagnostics.ToImmutableArray(), expression, endToken);
         }
 
         private ExpressionSyntax ParseExpression()

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,16 @@ namespace Jvav.CodeAnalysis.Syntax
     public abstract class SyntaxNode
     {
         public abstract SyntaxKind Kind { get; }
+        public virtual TextSpan Span
+        {
+            get
+            {
+                var children = GetChildren();
+                var first = children.First().Span;
+                var last = children.Last().Span;
+                return TextSpan.FromBounds(first.Start, last.Start);
+            }
+        }
         public IEnumerable<SyntaxNode> GetChildren()
         {
             var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -27,6 +39,39 @@ namespace Jvav.CodeAnalysis.Syntax
                         yield return child;
                 }
             }
+        }
+
+        public void WriteTo(TextWriter writer) => PrettyPrint(writer, this);
+        private static void PrettyPrint(TextWriter writer, SyntaxNode node, string indent = "", bool isLast = true)
+        {
+            var marker = isLast ? "└───" : "├───";
+
+            writer.Write(indent);
+            writer.Write(marker);
+            writer.Write(node.Kind);
+
+            if(node is SyntaxToken t && t.Value != null)
+            {
+                writer.Write(" ");
+                writer.Write(t.Value);
+            }
+
+            writer.WriteLine();
+
+            indent += isLast ? "    " : "|   ";
+
+            var children = node.GetChildren();
+            var lastChild = children.LastOrDefault();
+
+            foreach (var child in children)
+                PrettyPrint(writer, child, indent, child == lastChild);
+        }
+
+        public override string ToString()
+        {
+            using StringWriter writer = new StringWriter();
+            WriteTo(writer);
+            return writer.ToString();
         }
     }
 }
