@@ -1,7 +1,7 @@
 ﻿using Jvav.CodeAnalysis.Syntax;
-
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -12,13 +12,50 @@ namespace Jvav.CodeAnalysis.Binding
     public sealed class Binder
     {
         private readonly DiagnosticBag _diagnostic = new();
-        private readonly Dictionary<VariableSymbol, object> _variables;
+        private readonly BoundScope _scope;
 
-        public Binder(Dictionary<VariableSymbol, object> variables)
+        public Binder(BoundScope parent)
         {
-            _variables = variables;
+            _scope = new(parent);
         }
 
+        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationUnitSyntax syntax)
+        {
+            BoundScope parentScope = CreateParentScopes(previous);
+            Binder binder = new(parentScope);
+            BoundExpression expression = binder.BindExpression(syntax.Expression);
+            ImmutableArray<VariableSymbol> variables = binder._scope.GetDeclaredVariables();
+            ImmutableArray<Diagnostic> diagnostics = binder.Diagnostic.ToImmutableArray();
+
+            if (previous != null)
+                diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
+
+            return new(previous, diagnostics, variables, expression);
+        }
+
+        private static BoundScope CreateParentScopes(BoundGlobalScope previous)
+        {
+            Stack<BoundGlobalScope> stack = new();
+            while(previous != null)
+            {
+                stack.Push(previous);
+                previous = previous.Previous;
+            }
+
+            BoundScope parent = null;
+
+            while(stack.Count > 0)
+            {
+                previous = stack.Pop();
+                BoundScope scope = new(parent);
+                foreach (VariableSymbol v in previous.Variables)
+                    scope.TryDeclare(v);
+
+                parent = scope;
+            }
+
+            return parent;
+        }
         public DiagnosticBag Diagnostic => _diagnostic;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
@@ -37,31 +74,34 @@ namespace Jvav.CodeAnalysis.Binding
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
         {
-            var name = syntax.IdentifierToken.Text;
-            var boundExpression = BindExpression(syntax.Expression);
+            string name = syntax.IdentifierToken.Text;
+            BoundExpression boundExpression = BindExpression(syntax.Expression);
 
-            var existingVariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
-            if (existingVariable != null)
-                _variables.Remove(existingVariable);
+            if(!_scope.TryLookup(name,out VariableSymbol variable))
+            {
+                variable = new(name, boundExpression.Type);
+                _scope.TryDeclare(variable);
+            }
 
-            var variable = new VariableSymbol(name, boundExpression.Type);
-            _variables[variable] = null;
+            if(boundExpression.Type != variable.Type)
+            {
+                _diagnostic.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type,variable.Type);
+                return boundExpression;
+            }
 
             return new BoundAssignmentExpression(variable, boundExpression);
         }
 
         private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
-            var name = syntax.IdentifierToken.Text;
-            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+            string name = syntax.IdentifierToken.Text;
 
-            if (variable == null)
+            if (!_scope.TryLookup(name, out VariableSymbol variable))
             {
                 _diagnostic.ReportUndefinedName(syntax.IdentifierToken.Span, name);
                 return new BoundLiteralExpression(0);
             }
 
-            var type = variable.GetType();
             return new BoundVariableExpression(variable);
         }
 

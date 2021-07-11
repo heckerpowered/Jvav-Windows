@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 using Jvav.CodeAnalysis.Syntax;
 
@@ -71,6 +72,12 @@ namespace Jvav.CodeAnalysis
         public void ReportUndefinedUnaryOperator(TextSpan span, string operatorText, Type operandType)
         {
             var message = $"Unary operator '{operatorText}' is not defined for type '{operandType}'.";
+            Report(span, message);
+        }
+
+        public void ReportCannotConvert(TextSpan span, Type fromType, Type toType)
+{
+            var message = $"Cannot convert type '{fromType}' to '{toType}'.";
             Report(span, message);
         }
     }

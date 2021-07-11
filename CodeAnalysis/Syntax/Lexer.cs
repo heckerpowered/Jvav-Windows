@@ -90,15 +90,15 @@ namespace Jvav.CodeAnalysis.Syntax
                     }
                     break;
                 case '=':
-                    _position++;
-                    if (Current == '=')
+                    if (Lookahead == '=')
                     {
                         _kind = SyntaxKind.EqualsEqualsToken;
+                        _position += 2;
                     }
                     else
                     {
-                        _position++;
                         _kind = SyntaxKind.EqualsToken;
+                        _position += 2;
                     }
                     break;
                 case '!':
