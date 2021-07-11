@@ -40,6 +40,9 @@ namespace Jvav.CodeAnalysis.Syntax
             return _tokens[index];
         }
         private SyntaxToken Current => Peek(0);
+
+        public DiagnosticBag Diagnostics => _diagnostics;
+
         private SyntaxToken NextToken()
         {
             SyntaxToken current = Current;
@@ -51,14 +54,14 @@ namespace Jvav.CodeAnalysis.Syntax
             if (Current.Kind == kind)
                 return NextToken();
 
-            _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
+            Diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
             return new SyntaxToken(kind, Current.Position, null, null);
         }
-        public SyntaxTree Parse()
+        public CompilationUnitSyntax ParseCompilatioUnit()
         {
             ExpressionSyntax expression = ParseExpression();
             SyntaxToken endToken = MatchToken(SyntaxKind.EndToken);
-            return new SyntaxTree(_text,_diagnostics.ToImmutableArray(), expression, endToken);
+            return new(expression, endToken);
         }
 
         private ExpressionSyntax ParseExpression()

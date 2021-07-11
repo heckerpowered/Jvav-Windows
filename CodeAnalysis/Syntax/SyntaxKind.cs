@@ -21,6 +21,9 @@
         BangEqualsToken,
         EqualsToken,
 
+        //Nodes
+        CompilationUnit,
+
         //Expressions
         BinaryExpression,
         ParenthesizedExpression,
@@ -32,6 +35,5 @@
         //Keywords
         TrueKeyword,
         FalseKeyword,
-        
     }
 }

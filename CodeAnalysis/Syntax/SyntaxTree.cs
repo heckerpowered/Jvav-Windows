@@ -8,18 +8,19 @@ namespace Jvav.CodeAnalysis.Syntax
 {
     public sealed class SyntaxTree
     {
-        public SyntaxTree(SourceText text, ImmutableArray<Diagnostic> diagnostics, ExpressionSyntax root, SyntaxToken endToken)
+        private SyntaxTree(SourceText text)
         {
+            Parser parser = new(text);
+            var root = parser.ParseCompilatioUnit();
+            ImmutableArray<Diagnostic> diagnostics = parser.Diagnostics.ToImmutableArray();
             Text = text;
             Diagnostics = diagnostics;
             Root = root;
-            EndToken = endToken;
         }
 
         public SourceText Text { get; }
         public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public ExpressionSyntax Root { get; }
-        public SyntaxToken EndToken { get; }
+        public CompilationUnitSyntax Root { get; }
         public static SyntaxTree Parse(string text)
         {
             var sourceText = SourceText.From(text);
@@ -27,8 +28,7 @@ namespace Jvav.CodeAnalysis.Syntax
         }
         public static SyntaxTree Parse(SourceText text)
         {
-            Parser parser = new(text);
-            return parser.Parse();
+            return new SyntaxTree(text);
         }
         public static IEnumerable<SyntaxToken> ParseTokens(string text)
         {
