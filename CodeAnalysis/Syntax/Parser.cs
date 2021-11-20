@@ -59,11 +59,37 @@ namespace Jvav.CodeAnalysis.Syntax
         }
         public CompilationUnitSyntax ParseCompilatioUnit()
         {
-            ExpressionSyntax expression = ParseExpression();
+            StatementSyntax statement = ParseStatement();
             SyntaxToken endToken = MatchToken(SyntaxKind.EndToken);
-            return new(expression, endToken);
+            return new(statement, endToken);
         }
+        private StatementSyntax ParseStatement()
+        {
+            if(Current.Kind == SyntaxKind.OpenBraceToken)
+                return ParseBlockStatement();
 
+            return ParseExpressionStatement();
+        }
+        private ExpressionStatementSyntax ParseExpressionStatement()
+        {
+            ExpressionSyntax expression = ParseExpression();
+            return new ExpressionStatementSyntax(expression);
+        }
+        private StatementSyntax ParseBlockStatement()
+        {
+            ImmutableArray<StatementSyntax>.Builder statements = ImmutableArray.CreateBuilder<StatementSyntax>();
+            SyntaxToken openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
+            while(Current.Kind != SyntaxKind.EndToken &&
+                Current.Kind != SyntaxKind.CloseBraceToken)
+            {
+                StatementSyntax statement = ParseStatement();
+                statements.Add(statement);
+            }
+
+            SyntaxToken closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
+
+            return new BlockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
+        }
         private ExpressionSyntax ParseExpression()
         {
             return ParseAssignmentExpression();

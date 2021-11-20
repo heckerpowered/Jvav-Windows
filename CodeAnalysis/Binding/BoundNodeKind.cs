@@ -5,6 +5,8 @@
         UnaryExpression,
         LiteralExpression,
         VariableExpression,
-        AssignmentExpression
+        AssignmentExpression,
+        BlockStatement,
+        ExpressionStatement
     }
 }

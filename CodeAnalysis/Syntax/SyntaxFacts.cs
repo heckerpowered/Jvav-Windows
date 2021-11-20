@@ -47,6 +47,8 @@ namespace Jvav.CodeAnalysis.Syntax
                 SyntaxKind.CloseParenthesisToken => ")",
                 SyntaxKind.FalseKeyword => "false",
                 SyntaxKind.TrueKeyword => "true",
+                SyntaxKind.OpenBraceToken => "{",
+                SyntaxKind.CloseBraceToken => "}",
                 _ => null
             };
         }

@@ -20,9 +20,15 @@
         EqualsEqualsToken,
         BangEqualsToken,
         EqualsToken,
+        CloseBraceToken,
+        OpenBraceToken,
 
         //Nodes
         CompilationUnit,
+
+        //Statements
+        BlockStatement,
+        ExpressionStatement,
 
         //Expressions
         BinaryExpression,

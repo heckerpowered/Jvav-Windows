@@ -21,9 +21,9 @@ namespace Jvav.CodeAnalysis.Binding
 
         public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationUnitSyntax syntax)
         {
-            BoundScope parentScope = CreateParentScopes(previous);
+            var parentScope = CreateParentScopes(previous);
             Binder binder = new(parentScope);
-            BoundExpression expression = binder.BindExpression(syntax.Expression);
+            var expression = binder.BindStatement(syntax.Statement);
             ImmutableArray<VariableSymbol> variables = binder._scope.GetDeclaredVariables();
             ImmutableArray<Diagnostic> diagnostics = binder.Diagnostic.ToImmutableArray();
 
@@ -58,18 +58,45 @@ namespace Jvav.CodeAnalysis.Binding
         }
         public DiagnosticBag Diagnostic => _diagnostic;
 
+        public BoundStatement BindStatement(StatementSyntax syntax)
+        {
+            return syntax.Kind switch
+            {
+                SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax)syntax),
+                SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax)syntax),
+                _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
+            };
+        }
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
             return syntax.Kind switch
             {
+                SyntaxKind.ParenthesizedExpression => BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax),
                 SyntaxKind.LiteralExpression => BindLiteralExpression((LiteralExpressionSyntax)syntax),
                 SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax)syntax),
                 SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax)syntax),
-                SyntaxKind.ParenthesizedExpression => BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax),
                 SyntaxKind.NameExpression => BindNameExpression((NameExpressionSyntax)syntax),
                 SyntaxKind.AssignmentExpression => BindAssignmentExpression((AssignmentExpressionSyntax)syntax),
                 _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
             };
+        }
+        private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
+        {
+            ImmutableArray<BoundStatement>.Builder statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
+            foreach (StatementSyntax statementSyntax in syntax.Statements)
+            {
+                BoundStatement statement = BindStatement(statementSyntax);
+                statements.Add(statement);
+            }
+
+            return new BoundBlockStatement(statements.ToImmutable());
+        }
+
+        private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
+        {
+            var expression = BindExpression(syntax.Expression);
+            return new BoundExpressionStatement(expression);
         }
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
