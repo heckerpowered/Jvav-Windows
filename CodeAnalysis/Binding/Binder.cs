@@ -9,7 +9,7 @@ namespace Jvav.CodeAnalysis.Binding;
 public sealed class Binder
 {
     private readonly DiagnosticBag _diagnostic = new();
-    private readonly BoundScope _scope;
+    private BoundScope _scope;
 
     public Binder(BoundScope parent)
     {
@@ -61,9 +61,26 @@ public sealed class Binder
         {
             SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax)syntax),
             SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax)syntax),
+            SyntaxKind.VariableDeclaration => BindVariableDeclaration((VariableDeclarationSyntax)syntax),
             _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
         };
     }
+
+    private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
+    {
+        var name = syntax.Identifier.Text;
+        var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
+        var initializer = BindExpression(syntax.Initializer);
+        var variable = new VariableSymbol(name, isReadOnly, initializer.Type);
+
+        if (!_scope.TryDeclare(variable))
+        {
+            _diagnostic.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+        }
+
+        return new BoundVariableDeclaration(variable, initializer);
+    }
+
     public BoundExpression BindExpression(ExpressionSyntax syntax)
     {
         return syntax.Kind switch
@@ -80,12 +97,15 @@ public sealed class Binder
     private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
     {
         ImmutableArray<BoundStatement>.Builder statements = ImmutableArray.CreateBuilder<BoundStatement>();
+        _scope = new BoundScope(_scope);
 
         foreach (StatementSyntax statementSyntax in syntax.Statements)
         {
             BoundStatement statement = BindStatement(statementSyntax);
             statements.Add(statement);
         }
+
+        _scope = _scope.Parent;
 
         return new BoundBlockStatement(statements.ToImmutable());
     }
@@ -102,9 +122,14 @@ public sealed class Binder
         BoundExpression boundExpression = BindExpression(syntax.Expression);
 
         if (!_scope.TryLookup(name, out VariableSymbol variable))
+        { 
+            _diagnostic.ReportUndefinedName(syntax.IdentifierToken.Span,name);
+            return boundExpression;
+        }
+
+        if (variable.IsReadOnly)
         {
-            variable = new(name, boundExpression.Type);
-            _scope.TryDeclare(variable);
+            _diagnostic.ReportCannotAssign(syntax.EqualsToken.Span, name);
         }
 
         if (boundExpression.Type != variable.Type)

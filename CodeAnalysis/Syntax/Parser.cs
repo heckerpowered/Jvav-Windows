@@ -67,11 +67,24 @@ namespace Jvav.CodeAnalysis.Syntax
         }
         private StatementSyntax ParseStatement()
         {
-            if(Current.Kind == SyntaxKind.OpenBraceToken)
-                return ParseBlockStatement();
-
-            return ParseExpressionStatement();
+            return Current.Kind switch
+            {
+                SyntaxKind.OpenBraceToken => ParseBlockStatement(),
+                SyntaxKind.LetKeyword or SyntaxKind.VarKeyword => ParseVariableDeclaration(),
+                _ => ParseExpressionStatement(),
+            };
         }
+
+        private StatementSyntax ParseVariableDeclaration()
+        {
+            var excepted = Current.Kind == SyntaxKind.LetKeyword ? SyntaxKind.LetKeyword : SyntaxKind.VarKeyword;
+            var keyword = MatchToken(excepted);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equals = MatchToken(SyntaxKind.EqualsToken);
+            var initializer = ParseExpression();
+            return new VariableDeclarationSyntax(keyword, identifier, equals, initializer);
+        }
+
         private ExpressionStatementSyntax ParseExpressionStatement()
         {
             ExpressionSyntax expression = ParseExpression();
@@ -82,7 +95,7 @@ namespace Jvav.CodeAnalysis.Syntax
             ImmutableArray<StatementSyntax>.Builder statements = ImmutableArray.CreateBuilder<StatementSyntax>();
             SyntaxToken openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
             while(Current.Kind != SyntaxKind.EndToken &&
-                Current.Kind != SyntaxKind.CloseBraceToken)
+                  Current.Kind != SyntaxKind.CloseBraceToken)
             {
                 StatementSyntax statement = ParseStatement();
                 statements.Add(statement);

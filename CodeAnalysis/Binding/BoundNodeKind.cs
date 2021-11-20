@@ -7,5 +7,6 @@ public enum BoundNodeKind
     VariableExpression,
     AssignmentExpression,
     BlockStatement,
-    ExpressionStatement
+    ExpressionStatement,
+    VariableDeclaration
 }

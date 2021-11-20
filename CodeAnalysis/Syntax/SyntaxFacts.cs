@@ -25,6 +25,8 @@ public static class SyntaxFacts
         {
             "true" => SyntaxKind.TrueKeyword,
             "false" => SyntaxKind.FalseKeyword,
+            "let" => SyntaxKind.LetKeyword,
+            "var" => SyntaxKind.VarKeyword,
             _ => SyntaxKind.IdentifierToken,
         };
     }
@@ -49,6 +51,8 @@ public static class SyntaxFacts
             SyntaxKind.TrueKeyword => "true",
             SyntaxKind.OpenBraceToken => "{",
             SyntaxKind.CloseBraceToken => "}",
+            SyntaxKind.VarKeyword => "var",
+            SyntaxKind.LetKeyword => "let",
             _ => null
         };
     }
