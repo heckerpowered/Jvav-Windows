@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Jvav.CodeAnalysis.Binding
+namespace Jvav.CodeAnalysis.Binding;
+
+public abstract class BoundExpression : BoundNode
 {
-    public abstract class BoundExpression : BoundNode
-    {
-        public abstract Type Type { get; }
-    }
+    public abstract Type Type { get; }
 }

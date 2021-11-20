@@ -1,7 +1,6 @@
-﻿namespace Jvav.CodeAnalysis.Syntax
-{
-    public abstract class StatementSyntax : SyntaxNode
-    {
+﻿namespace Jvav.CodeAnalysis.Syntax;
 
-    }
+public abstract class StatementSyntax : SyntaxNode
+{
+
 }

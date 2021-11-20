@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 
+using Jvav.CodeAnalysis.Text;
+
 namespace Jvav.CodeAnalysis.Syntax
 {
     public partial class Parser

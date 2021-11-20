@@ -1,45 +1,44 @@
-﻿namespace Jvav.CodeAnalysis.Syntax
+﻿namespace Jvav.CodeAnalysis.Syntax;
+
+public enum SyntaxKind
 {
-    public enum SyntaxKind
-    {
-        //Tokens
-        LiteralToken,
-        WhitespaceToken,
-        SlashToken,
-        MinusToken,
-        MultiplicationToken,
-        PlusToken,
-        OpenParenthesisToken,
-        CloseParenthesisToken,
-        BadToken,
-        EndToken,
-        IdentifierToken,
-        BangToken,
-        AmpersandAmpersandToken,
-        PipePipeToken,
-        EqualsEqualsToken,
-        BangEqualsToken,
-        EqualsToken,
-        CloseBraceToken,
-        OpenBraceToken,
+    //Tokens
+    LiteralToken,
+    WhitespaceToken,
+    SlashToken,
+    MinusToken,
+    MultiplicationToken,
+    PlusToken,
+    OpenParenthesisToken,
+    CloseParenthesisToken,
+    BadToken,
+    EndToken,
+    IdentifierToken,
+    BangToken,
+    AmpersandAmpersandToken,
+    PipePipeToken,
+    EqualsEqualsToken,
+    BangEqualsToken,
+    EqualsToken,
+    CloseBraceToken,
+    OpenBraceToken,
 
-        //Nodes
-        CompilationUnit,
+    //Nodes
+    CompilationUnit,
 
-        //Statements
-        BlockStatement,
-        ExpressionStatement,
+    //Statements
+    BlockStatement,
+    ExpressionStatement,
 
-        //Expressions
-        BinaryExpression,
-        ParenthesizedExpression,
-        UnaryExpression,
-        LiteralExpression,
-        NameExpression,
-        AssignmentExpression,
+    //Expressions
+    BinaryExpression,
+    ParenthesizedExpression,
+    UnaryExpression,
+    LiteralExpression,
+    NameExpression,
+    AssignmentExpression,
 
-        //Keywords
-        TrueKeyword,
-        FalseKeyword,
-    }
+    //Keywords
+    TrueKeyword,
+    FalseKeyword,
 }

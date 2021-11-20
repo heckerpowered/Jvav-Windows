@@ -1,12 +1,11 @@
-﻿namespace Jvav.CodeAnalysis.Binding
+﻿namespace Jvav.CodeAnalysis.Binding;
+
+public enum BoundNodeKind
 {
-    public enum BoundNodeKind
-    {
-        UnaryExpression,
-        LiteralExpression,
-        VariableExpression,
-        AssignmentExpression,
-        BlockStatement,
-        ExpressionStatement
-    }
+    UnaryExpression,
+    LiteralExpression,
+    VariableExpression,
+    AssignmentExpression,
+    BlockStatement,
+    ExpressionStatement
 }

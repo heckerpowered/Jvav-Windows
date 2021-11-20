@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 
 using Jvav.CodeAnalysis.Syntax;
+using Jvav.CodeAnalysis.Text;
 
 namespace Jvav.CodeAnalysis
 {

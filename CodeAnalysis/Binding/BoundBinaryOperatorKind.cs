@@ -1,14 +1,13 @@
-﻿namespace Jvav.CodeAnalysis.Binding
+﻿namespace Jvav.CodeAnalysis.Binding;
+
+public enum BoundBinaryOperatorKind
 {
-    public enum BoundBinaryOperatorKind
-    {
-        Addition,
-        Subtraction,
-        Multiplication,
-        Division,
-        LogicalAnd,
-        LogicalOr,
-        Equals,
-        NotEquals
-    }
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    LogicalAnd,
+    LogicalOr,
+    Equals,
+    NotEquals
 }

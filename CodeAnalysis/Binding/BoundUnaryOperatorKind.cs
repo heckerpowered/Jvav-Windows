@@ -1,9 +1,8 @@
-﻿namespace Jvav.CodeAnalysis.Binding
+﻿namespace Jvav.CodeAnalysis.Binding;
+
+public enum BoundUnaryOperatorKind
 {
-    public enum BoundUnaryOperatorKind
-    {
-        Identity,
-        Negation,
-        LogicalNegation
-    }
+    Identity,
+    Negation,
+    LogicalNegation
 }

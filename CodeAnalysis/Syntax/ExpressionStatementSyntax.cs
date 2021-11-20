@@ -1,14 +1,13 @@
-﻿namespace Jvav.CodeAnalysis.Syntax
+﻿namespace Jvav.CodeAnalysis.Syntax;
+
+public sealed class ExpressionStatementSyntax : StatementSyntax
 {
-    public sealed class ExpressionStatementSyntax : StatementSyntax
+    public ExpressionStatementSyntax(ExpressionSyntax expression)
     {
-        public ExpressionStatementSyntax(ExpressionSyntax expression)
-        {
-            Expression = expression;
-        }
-
-        public ExpressionSyntax Expression { get; }
-
-        public override SyntaxKind Kind => SyntaxKind.ExpressionStatement;
+        Expression = expression;
     }
+
+    public ExpressionSyntax Expression { get; }
+
+    public override SyntaxKind Kind => SyntaxKind.ExpressionStatement;
 }

@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
+﻿namespace Jvav.CodeAnalysis.Syntax;
 
-namespace Jvav.CodeAnalysis.Syntax
+public sealed class UnaryExpressionSyntax : ExpressionSyntax
 {
-    public sealed class UnaryExpressionSyntax : ExpressionSyntax
+    public UnaryExpressionSyntax(SyntaxToken operatorToken, ExpressionSyntax operand)
     {
-        public UnaryExpressionSyntax(SyntaxToken operatorToken, ExpressionSyntax operand)
-        {
-            OperatorToken = operatorToken;
-            Operand = operand;
-        }
-        public override SyntaxKind Kind => SyntaxKind.UnaryExpression;
-        public SyntaxToken OperatorToken { get; }
-        public ExpressionSyntax Operand { get; }
+        OperatorToken = operatorToken;
+        Operand = operand;
     }
+    public override SyntaxKind Kind => SyntaxKind.UnaryExpression;
+    public SyntaxToken OperatorToken { get; }
+    public ExpressionSyntax Operand { get; }
 }

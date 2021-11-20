@@ -1,13 +1,12 @@
-﻿namespace Jvav.CodeAnalysis.Binding
-{
-    public sealed class BoundExpressionStatement : BoundStatement
-    {
-        public BoundExpressionStatement(BoundExpression expression)
-        {
-            Expression = expression;
-        }
+﻿namespace Jvav.CodeAnalysis.Binding;
 
-        public override BoundNodeKind Kind => BoundNodeKind.ExpressionStatement;
-        public BoundExpression Expression { get; }
+public sealed class BoundExpressionStatement : BoundStatement
+{
+    public BoundExpressionStatement(BoundExpression expression)
+    {
+        Expression = expression;
     }
+
+    public override BoundNodeKind Kind => BoundNodeKind.ExpressionStatement;
+    public BoundExpression Expression { get; }
 }

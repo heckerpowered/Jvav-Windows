@@ -2,116 +2,113 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Jvav.CodeAnalysis
+namespace Jvav.CodeAnalysis;
+
+public class Evaluator
 {
-    public class Evaluator
+    private readonly BoundStatement _root;
+    private readonly Dictionary<VariableSymbol, object> _variables;
+
+    private object _lastValue;
+
+    public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
     {
-        private readonly BoundStatement _root;
-        private readonly Dictionary<VariableSymbol, object> _variables;
+        _root = root;
+        _variables = variables;
+    }
+    public object Evaluate()
+    {
+        EvaluateStatement(_root);
+        return _lastValue;
 
-        private object _lastValue;
+    }
+    private void EvaluateStatement(BoundStatement node)
+    {
+        switch (node.Kind)
+        {
+            case BoundNodeKind.BlockStatement:
+                EvaluateBlockStatement((BoundBlockStatement)node);
+                break;
+            case BoundNodeKind.ExpressionStatement:
+                EvaluateExpressionStatement((BoundExpressionStatement)node);
+                break;
+            default:
+                throw new Exception($"Unexpected node {node.Kind}");
+        }
+    }
+    private void EvaluateBlockStatement(BoundBlockStatement node)
+    {
+        foreach (var statement in node.Statements)
+            EvaluateStatement(statement);
+    }
+    private void EvaluateExpressionStatement(BoundExpressionStatement node)
+    {
+        _lastValue = EvaluateExpression(node.Expression);
+    }
+    private object EvaluateExpression(BoundExpression node)
+    {
+        return node switch
+        {
+            BoundLiteralExpression boundLiteralExpression => EvaluateLiteralExpression(boundLiteralExpression),
+            BoundVariableExpression boundVariableExpression => EvaluateVariableExpression(boundVariableExpression),
+            BoundAssignmentExpression boundAssignmentExpression => EvaluateAssignmentExpression(boundAssignmentExpression),
+            BoundUnaryExpression boundUnaryExpression => EvaluateUnaryExpression(boundUnaryExpression),
+            BoundBinaryExpression boundBinaryExpression => EvaluateBinaryExpression(boundBinaryExpression),
+            BoundParenthesizedExpression boundParenthsizedExpression => EvaluateParenthsizedExpression(boundParenthsizedExpression),
+            _ => throw new Exception($"Unexpected node '{node.Kind}'")
+        };
+    }
 
-        public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
-        {
-            _root = root;
-            _variables = variables;
-        }
-        public object Evaluate()
-        {
-            EvaluateStatement(_root);
-            return _lastValue;
+    private object EvaluateParenthsizedExpression(BoundParenthesizedExpression boundParenthsizedExpression)
+    {
+        return EvaluateExpression(boundParenthsizedExpression.Expression);
+    }
 
-        }
-        private void EvaluateStatement(BoundStatement node)
+    private object EvaluateBinaryExpression(BoundBinaryExpression boundBinaryExpression)
+    {
+        var left = EvaluateExpression(boundBinaryExpression.Left);
+        var right = EvaluateExpression(boundBinaryExpression.Right);
+        return boundBinaryExpression.Op.Kind switch
         {
-            switch (node.Kind)
-            {
-                case BoundNodeKind.BlockStatement:
-                    EvaluateBlockStatement((BoundBlockStatement)node);
-                    break;
-                case BoundNodeKind.ExpressionStatement:
-                    EvaluateExpressionStatement((BoundExpressionStatement)node);
-                    break;
-                default:
-                    throw new Exception($"Unexpected node {node.Kind}");
-            }
-        }
-        private void EvaluateBlockStatement(BoundBlockStatement node)
-        {
-            foreach(var statement in node.Statements)
-                EvaluateStatement(statement);
-        }
-        private void EvaluateExpressionStatement(BoundExpressionStatement node)
-        {
-            _lastValue = EvaluateExpression(node.Expression);
-        }
-        private object EvaluateExpression(BoundExpression node)
-        {
-            return node switch
-            {
-                BoundLiteralExpression boundLiteralExpression => EvaluateLiteralExpression(boundLiteralExpression),
-                BoundVariableExpression boundVariableExpression => EvaluateVariableExpression(boundVariableExpression),
-                BoundAssignmentExpression boundAssignmentExpression => EvaluateAssignmentExpression(boundAssignmentExpression),
-                BoundUnaryExpression boundUnaryExpression => EvaluateUnaryExpression(boundUnaryExpression),
-                BoundBinaryExpression boundBinaryExpression => EvaluateBinaryExpression(boundBinaryExpression),
-                BoundParenthesizedExpression boundParenthsizedExpression => EvaluateParenthsizedExpression(boundParenthsizedExpression),
-                _ => throw new Exception($"Unexpected node '{node.Kind}'")
-            };
-        }
+            BoundBinaryOperatorKind.Addition => (int)left + (int)right,
+            BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
+            BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
+            BoundBinaryOperatorKind.Division => (int)left / (int)right,
+            BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
+            BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
+            BoundBinaryOperatorKind.Equals => Equals(left, right),
+            BoundBinaryOperatorKind.NotEquals => Equals(left, right),
+            _ => throw new Exception($"Unexpected binary operator '{boundBinaryExpression.Op}'")
+        };
+    }
 
-        private object EvaluateParenthsizedExpression(BoundParenthesizedExpression boundParenthsizedExpression)
+    private object EvaluateUnaryExpression(BoundUnaryExpression u)
+    {
+        var operand = EvaluateExpression(u.Operand);
+        return u.Op.Kind switch
         {
-            return EvaluateExpression(boundParenthsizedExpression.Expression);
-        }
+            BoundUnaryOperatorKind.Identity => (int)operand,
+            BoundUnaryOperatorKind.Negation => -(int)operand,
+            BoundUnaryOperatorKind.LogicalNegation => !(bool)operand,
+            _ => throw new Exception($"Unexpected unary operator '{u.Op}'")
+        };
+    }
 
-        private object EvaluateBinaryExpression(BoundBinaryExpression boundBinaryExpression)
-        {
-            var left = EvaluateExpression(boundBinaryExpression.Left);
-            var right = EvaluateExpression(boundBinaryExpression.Right);
-            return boundBinaryExpression.Op.Kind switch
-            {
-                BoundBinaryOperatorKind.Addition => (int)left + (int)right,
-                BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
-                BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
-                BoundBinaryOperatorKind.Division => (int)left / (int)right,
-                BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
-                BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
-                BoundBinaryOperatorKind.Equals => Equals(left, right),
-                BoundBinaryOperatorKind.NotEquals => Equals(left, right),
-                _ => throw new Exception($"Unexpected binary operator '{boundBinaryExpression.Op}'")
-            };
-        }
+    private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
+    {
+        var value = EvaluateExpression(a.Expression);
+        _variables[a.Variable] = value;
+        return value;
+    }
 
-        private object EvaluateUnaryExpression(BoundUnaryExpression u)
-        {
-            var operand = EvaluateExpression(u.Operand);
-            return u.Op.Kind switch
-            {
-                BoundUnaryOperatorKind.Identity => (int)operand,
-                BoundUnaryOperatorKind.Negation => -(int)operand,
-                BoundUnaryOperatorKind.LogicalNegation => !(bool)operand,
-                _ => throw new Exception($"Unexpected unary operator '{u.Op}'")
-            };
-        }
+    private object EvaluateVariableExpression(BoundVariableExpression v)
+    {
+        return _variables[v.Variable];
+    }
 
-        private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
-        {
-            var value = EvaluateExpression(a.Expression);
-            _variables[a.Variable] = value;
-            return value;
-        }
-
-        private object EvaluateVariableExpression(BoundVariableExpression v)
-        {
-            return _variables[v.Variable];
-        }
-
-        private static object EvaluateLiteralExpression(BoundLiteralExpression n)
-        {
-            return n.Value;
-        }
+    private static object EvaluateLiteralExpression(BoundLiteralExpression n)
+    {
+        return n.Value;
     }
 }
