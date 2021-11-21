@@ -8,5 +8,8 @@ public enum BoundNodeKind
     AssignmentExpression,
     BlockStatement,
     ExpressionStatement,
-    VariableDeclaration
+    VariableDeclaration,
+    IfStatement,
+    WhileStatement,
+    ForStatement
 }

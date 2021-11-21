@@ -121,7 +121,34 @@ public class Lexer
                     _kind = SyntaxKind.BangToken;
                 }
                 break;
-            case '0' or '1' or '2' or '3' or '4' or '5' or '6' or '7' or '8' or '9':
+            case '<':
+                _position++;
+
+                if(Current != '=')
+                {
+                    _kind = SyntaxKind.LessToken;
+                }
+                else
+                {
+                    _kind = SyntaxKind.LessOrEqualsToken;
+                    _position++;
+                }
+                break;
+            case '>':
+                _position++;
+
+                if (Current != '=')
+                {
+                    _kind = SyntaxKind.GreaterToken;
+                }
+                else
+                {
+                    _kind = SyntaxKind.GreaterOrEqualsToken;
+                    _position++;
+                }
+                break;
+            case '0' or '1' or '2' or '3' or '4' 
+              or '5' or '6' or '7' or '8' or '9':
                 ReadNumberToken();
                 break;
             case ' ' or '\t' or '\n' or '\n':

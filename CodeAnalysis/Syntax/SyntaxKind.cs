@@ -22,6 +22,10 @@ public enum SyntaxKind
     EqualsToken,
     CloseBraceToken,
     OpenBraceToken,
+    LessToken,
+    LessOrEqualsToken,
+    GreaterToken,
+    GreaterOrEqualsToken,
 
     //Nodes
     CompilationUnit,
@@ -30,6 +34,8 @@ public enum SyntaxKind
     BlockStatement,
     ExpressionStatement,
     VariableDeclaration,
+    IfStatement,
+    WhileStatement,
 
     //Expressions
     BinaryExpression,
@@ -44,4 +50,11 @@ public enum SyntaxKind
     FalseKeyword,
     LetKeyword,
     VarKeyword,
+    ElseClause,
+    IfKeyword,
+    ElseKeyword,
+    WhileKeyword,
+    ForKeyword,
+    ForStatement,
+    ToKeyword,
 }

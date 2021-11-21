@@ -13,7 +13,9 @@ public static class SyntaxFacts
     {
         SyntaxKind.MultiplicationToken or SyntaxKind.SlashToken => 5,
         SyntaxKind.PlusToken or SyntaxKind.MinusToken => 4,
-        SyntaxKind.BangEqualsToken or SyntaxKind.EqualsEqualsToken => 3,
+        SyntaxKind.BangEqualsToken or SyntaxKind.EqualsEqualsToken or
+        SyntaxKind.LessToken or SyntaxKind.LessOrEqualsToken or
+        SyntaxKind.GreaterToken or SyntaxKind.GreaterOrEqualsToken  => 3,
         SyntaxKind.AmpersandAmpersandToken => 2,
         SyntaxKind.PipePipeToken => 1,
         _ => 0,
@@ -27,6 +29,11 @@ public static class SyntaxFacts
             "false" => SyntaxKind.FalseKeyword,
             "let" => SyntaxKind.LetKeyword,
             "var" => SyntaxKind.VarKeyword,
+            "if" => SyntaxKind.IfKeyword,
+            "else" => SyntaxKind.ElseKeyword,
+            "while" => SyntaxKind.WhileKeyword,
+            "for" => SyntaxKind.ForKeyword,
+            "to" => SyntaxKind.ToKeyword,
             _ => SyntaxKind.IdentifierToken,
         };
     }
@@ -53,6 +60,15 @@ public static class SyntaxFacts
             SyntaxKind.CloseBraceToken => "}",
             SyntaxKind.VarKeyword => "var",
             SyntaxKind.LetKeyword => "let",
+            SyntaxKind.LessToken => "<",
+            SyntaxKind.LessOrEqualsToken => "<=",
+            SyntaxKind.GreaterToken => ">",
+            SyntaxKind.IfKeyword => "if",
+            SyntaxKind.ElseKeyword => "else",
+            SyntaxKind.GreaterOrEqualsToken => ">=",
+            SyntaxKind.WhileKeyword => "while",
+            SyntaxKind.ForKeyword => "for",
+            SyntaxKind.ToKeyword => "to",
             _ => null
         };
     }

@@ -61,12 +61,62 @@ public sealed class Binder
         {
             SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax)syntax),
             SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax)syntax),
+            SyntaxKind.IfStatement => BindIfStatement((IfStatementSyntax)syntax),
             SyntaxKind.VariableDeclaration => BindVariableDeclaration((VariableDeclarationSyntax)syntax),
+            SyntaxKind.WhileStatement => BindWhileStatement((WhileStatementSyntax)syntax),
+            SyntaxKind.ForStatement => BindForStatement((ForStatementSyntax)syntax),
             _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
         };
     }
 
-    private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
+    private BoundForStatement BindForStatement(ForStatementSyntax syntax)
+    {
+        var lowerBound = BindExpression(syntax.LowerBound, typeof(int));
+        var upperBound = BindExpression(syntax.UpperBound, typeof(int));
+
+        _scope = new BoundScope(_scope);
+
+        var name = syntax.Identifier.Text;
+        var variable = new VariableSymbol(name,true,typeof(int));
+        if (!_scope.TryDeclare(variable))
+        {
+            _diagnostic.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+        }
+
+        var body = BindStatement(syntax.Body);
+
+        _scope = _scope.Parent;
+
+        return new BoundForStatement(variable, lowerBound, upperBound, body);
+    }
+
+    private BoundWhileStatement BindWhileStatement(WhileStatementSyntax syntax)
+    {
+        var condition = BindExpression(syntax.Condition,typeof(bool));
+        var body = BindStatement(syntax.Body);
+        return new BoundWhileStatement(condition, body);
+    }
+
+    private BoundIfStatement BindIfStatement(IfStatementSyntax syntax)
+    {
+        var condition = BindExpression(syntax.Condition,typeof(bool));
+        var thenStatement = BindStatement(syntax.ThenStatement);
+        var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+        return new BoundIfStatement(condition, thenStatement, elseStatement);
+    }
+
+    private BoundExpression BindExpression(ExpressionSyntax syntax, Type targetType)
+    {
+        var result = BindExpression(syntax);
+        if(result.Type != targetType)
+        {
+            _diagnostic.ReportCannotConvert(syntax.Span, result.Type, targetType);
+        }
+
+        return result;
+    }
+
+    private BoundVariableDeclaration BindVariableDeclaration(VariableDeclarationSyntax syntax)
     {
         var name = syntax.Identifier.Text;
         var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
@@ -94,7 +144,7 @@ public sealed class Binder
             _ => throw new Exception($"Unexcepted syntax {syntax.Kind}"),
         };
     }
-    private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
+    private BoundBlockStatement BindBlockStatement(BlockStatementSyntax syntax)
     {
         ImmutableArray<BoundStatement>.Builder statements = ImmutableArray.CreateBuilder<BoundStatement>();
         _scope = new BoundScope(_scope);
@@ -110,7 +160,7 @@ public sealed class Binder
         return new BoundBlockStatement(statements.ToImmutable());
     }
 
-    private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
+    private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
         var expression = BindExpression(syntax.Expression);
         return new BoundExpressionStatement(expression);
