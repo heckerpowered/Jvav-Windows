@@ -4,6 +4,7 @@ namespace Jvav.CodeAnalysis.Binding;
 
 public sealed class BoundLiteralExpression : BoundExpression
 {
+    public static BoundLiteralExpression Zero { get; } = new BoundLiteralExpression(0);
     public BoundLiteralExpression(object value)
     {
         Value = value;

@@ -138,11 +138,26 @@ namespace Jvav.CodeAnalysis.Syntax
         {
             ImmutableArray<StatementSyntax>.Builder statements = ImmutableArray.CreateBuilder<StatementSyntax>();
             SyntaxToken openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
+
             while(Current.Kind != SyntaxKind.EndToken &&
                   Current.Kind != SyntaxKind.CloseBraceToken)
             {
+                var startToken = Current;
+
                 StatementSyntax statement = ParseStatement();
                 statements.Add(statement);
+                
+                // If ParseStatements() did not consume any tokens,
+                // we need to skip the current token and continue.
+                // in order to avoid infinite loop
+                //
+                // We don't need to report an error, because we'll
+                // already tried to parse an expression statement
+                // and reported one.
+                if(Current == startToken)
+                {
+                    NextToken();
+                }
             }
 
             SyntaxToken closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);

@@ -194,11 +194,16 @@ public sealed class Binder
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
         string name = syntax.IdentifierToken.Text;
-
+        if (string.IsNullOrEmpty(name))
+        {
+            // This means the token was inserted by the parser. We already
+            // reported error so we can just return an error expression
+            return BoundLiteralExpression.Zero;
+        }
         if (!_scope.TryLookup(name, out VariableSymbol variable))
         {
             _diagnostic.ReportUndefinedName(syntax.IdentifierToken.Span, name);
-            return new BoundLiteralExpression(0);
+            return BoundLiteralExpression.Zero;
         }
 
         return new BoundVariableExpression(variable);
