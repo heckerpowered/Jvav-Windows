@@ -6,7 +6,7 @@ public static class SyntaxFacts
 {
     public static int GetUnaryOperatorPrecedence(this SyntaxKind kind) => kind switch
     {
-        SyntaxKind.PlusToken or SyntaxKind.MinusToken or SyntaxKind.BangToken => 6,
+        SyntaxKind.PlusToken or SyntaxKind.MinusToken or SyntaxKind.BangToken or SyntaxKind.TildeToken => 6,
         _ => 0,
     };
     public static int GetBinaryOperatorPrecedence(this SyntaxKind kind) => kind switch
@@ -17,7 +17,7 @@ public static class SyntaxFacts
         SyntaxKind.LessToken or SyntaxKind.LessOrEqualsToken or
         SyntaxKind.GreaterToken or SyntaxKind.GreaterOrEqualsToken  => 3,
         SyntaxKind.AmpersandAmpersandToken => 2,
-        SyntaxKind.PipePipeToken => 1,
+        SyntaxKind.PipePipeToken or SyntaxKind.PipeToken or SyntaxKind.HatToken => 1,
         _ => 0,
     };
 
@@ -69,6 +69,9 @@ public static class SyntaxFacts
             SyntaxKind.WhileKeyword => "while",
             SyntaxKind.ForKeyword => "for",
             SyntaxKind.ToKeyword => "to",
+            SyntaxKind.TildeToken => "~",
+            SyntaxKind.PipeToken => "|",
+            SyntaxKind.AmpersandToken => "&",
             _ => null
         };
     }

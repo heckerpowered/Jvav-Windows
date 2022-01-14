@@ -26,9 +26,14 @@ public enum SyntaxKind
     LessOrEqualsToken,
     GreaterToken,
     GreaterOrEqualsToken,
+    AmpersandToken,
+    PipeToken,
+    TildeToken,
+    HatToken,
 
     //Nodes
     CompilationUnit,
+    ElseClause,
 
     //Statements
     BlockStatement,
@@ -50,11 +55,10 @@ public enum SyntaxKind
     FalseKeyword,
     LetKeyword,
     VarKeyword,
-    ElseClause,
     IfKeyword,
     ElseKeyword,
     WhileKeyword,
-    ForKeyword,
+    ForKeyword, 
     ForStatement,
     ToKeyword,
 }

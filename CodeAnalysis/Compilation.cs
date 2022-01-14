@@ -3,6 +3,7 @@ using Jvav.CodeAnalysis.Syntax;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -50,5 +51,10 @@ public sealed class Compilation
         var evaluator = new Evaluator(GlobalScope.Statement, variables);
         var value = evaluator.Evaluate();
         return new(ImmutableArray<Diagnostic>.Empty, value);
+    }
+
+    public void EmitTree(TextWriter writer) 
+    {
+        GlobalScope.Statement.WriteTo(writer);
     }
 }

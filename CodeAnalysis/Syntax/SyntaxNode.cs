@@ -45,25 +45,23 @@ public abstract class SyntaxNode
         }
     }
 
-    public void WriteTo(TextWriter writer) => PrettyPrint(writer, this);
+    public void WriteTo(TextWriter writer)
+    {
+        PrettyPrint(writer, this);
+    }
+
     private static void PrettyPrint(TextWriter writer, SyntaxNode node, string indent = "", bool isLast = true)
     {
         bool isToConsole = writer == Console.Out;
         string marker = isLast ? "└───" : "├───";
 
         writer.Write(indent);
-
-        if (isToConsole)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            writer.Write(marker);
-            Console.ResetColor();
-        }
+        writer.Write(marker);
 
         if (isToConsole)
             Console.ForegroundColor = node is SyntaxToken ? ConsoleColor.Blue : ConsoleColor.Cyan;
 
-
+        writer.Write(" ");
         writer.Write(node.Kind);
 
         if (node is SyntaxToken t && t.Value != null)
@@ -77,7 +75,7 @@ public abstract class SyntaxNode
 
         writer.WriteLine();
 
-        indent += isLast ? "    " : "|   ";
+        indent += isLast ? "     " : "|   ";
 
         IEnumerable<SyntaxNode> children = node.GetChildren();
         SyntaxNode lastChild = children.LastOrDefault();

@@ -136,10 +136,45 @@ public class Evaluator
             BoundBinaryOperatorKind.LessOrEquals => (int)left <= (int)right,
             BoundBinaryOperatorKind.Greater => (int)left > (int)right,
             BoundBinaryOperatorKind.GreaterOrEquals => (int)left >= (int)right,
+            BoundBinaryOperatorKind.BitwiseXor => BitwiseXor(boundBinaryExpression,left, right),
+            BoundBinaryOperatorKind.BitwiseOr => BitwiseOr(boundBinaryExpression,left, right),
+            BoundBinaryOperatorKind.BitwiseAnd => BitwiseAnd(boundBinaryExpression,left, right),
             _ => throw new Exception($"Unexpected binary operator '{boundBinaryExpression.Op}'")
         };
     }
-
+    private static object BitwiseXor(BoundBinaryExpression expression,object left,object right)
+    {
+        if (expression.Type == typeof(int))
+        {
+            return (int)left ^ (int)right;
+        }
+        else
+        {
+            return (bool)left ^ (bool)right;
+        }
+    }
+    private static object BitwiseOr(BoundBinaryExpression expression,object left,object right)
+    {
+        if (expression.Type == typeof(int))
+        {
+            return (int)left | (int)right;
+        }
+        else
+        {
+            return (bool)left | (bool)right;
+        }
+    }
+    private static object BitwiseAnd(BoundBinaryExpression expression,object left,object right)
+    {
+        if(expression.Type == typeof(int))
+        {
+            return (int)left & (int)right;
+        }
+        else
+        {
+            return (bool)left & (bool)right;
+        }
+    }
     private object EvaluateUnaryExpression(BoundUnaryExpression u)
     {
         var operand = EvaluateExpression(u.Operand);
@@ -148,6 +183,7 @@ public class Evaluator
             BoundUnaryOperatorKind.Identity => (int)operand,
             BoundUnaryOperatorKind.Negation => -(int)operand,
             BoundUnaryOperatorKind.LogicalNegation => !(bool)operand,
+            BoundUnaryOperatorKind.OnesComplement => ~(int)operand,
             _ => throw new Exception($"Unexpected unary operator '{u.Op}'")
         };
     }
